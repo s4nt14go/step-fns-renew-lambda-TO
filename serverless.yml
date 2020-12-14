@@ -1,7 +1,6 @@
-# NOTE: update this with your service name
-service: step-fns-renew-lambda-to
+service: step-fns-renew-lambda-TO
 
-# Create an optimized package for our functions 
+# Create an optimized package for our functions
 package:
   individually: true
 
@@ -9,24 +8,52 @@ plugins:
   - serverless-bundle # Package our functions with Webpack
   - serverless-offline
   - serverless-dotenv-plugin # Load .env as environment variables
+  - serverless-step-functions
 
 provider:
   name: aws
-  runtime: nodejs10.x
+  runtime: nodejs12.x
   stage: dev
   region: us-east-1
-  # To load environment variables externally
-  # rename env.example to .env and uncomment
-  # the following line. Also, make sure to not
-  # commit your .env.
-  #
-  #environment:
-  #  SAMPLE_ENV_VAR: ${env:SAMPLE_ENV_VAR}
+  memorySize: 128
+  logRetentionInDays: 7
+  timeout: 10
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - ses:*
+      Resource: '*'
 
 functions:
-  hello:
-    handler: handler.hello
-    events:
-      - http:
-          path: hello
-          method: get
+  processItem:
+    handler: handlers.processItem
+  batchEnded:
+    handler: handlers.batchEnded
+
+stepFunctions:
+  stateMachines:
+    batchProcessingRenewingTO:
+      name: batchProcessingRenewingTO
+      definition:
+        Comment: "Process batch relaunching lambda after processing each item to renew lambda timeout"
+        StartAt: ProcessingItem
+        States:
+          ProcessingItem:
+            Type: Task
+            Resource:
+              Fn::GetAtt: [ processItem, Arn ]
+            TimeoutSeconds: ${self:provider.timeout}
+            Next: IsBatchDone
+          IsBatchDone:
+            Type: Choice
+            Choices:
+            - Variable: $.done
+              BooleanEquals: false
+              Next: ProcessingItem
+            Default: BatchEnded
+          BatchEnded:
+            Type: Task
+            Resource:
+              Fn::GetAtt: [ batchEnded, Arn ]
+            TimeoutSeconds: ${self:provider.timeout}
+            End: true
