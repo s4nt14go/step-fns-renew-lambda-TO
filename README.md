@@ -24,7 +24,7 @@ This is how it looks like another intermediate state of `ProcessingItem`:
   <img src="doc/intermediate.png" />
 </p><br />
 
-It's possible to configure how much seconds takes every item to be processed creating an `.env` file like:
+It's possible to configure how many seconds takes every item to be processed creating an `.env` file like:
 ```dotenv
 TASK_TAKES=<number of seconds>
 ```
@@ -48,7 +48,7 @@ Anyway, those two environmental values `TASK_TAKES` and `EMAIL` are optional, yo
 * [Optional] Create file `.env` so it looks like this:
 ```dotenv
 EMAIL=<your SES verified email>
-# How much seconds takes processing 1 item:
+# How many seconds takes processing 1 item:
 TASK_TAKES=<number of seconds>
 ```
 * Configure your aws profile with the aws account credentials you want to use for the deployment
