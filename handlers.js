@@ -11,7 +11,7 @@ const SES = new AWS.SES();
 export const processItem = async (event, context) => {
   console.log('event', event);
   let { TASK_TAKES } = process.env;
-  TASK_TAKES |= 1;  // How much seconds take processing an item
+  TASK_TAKES |= 1;  // How many seconds take processing an item
 
   const alertNearTO = 3;  // How many seconds before TO will alert
   let to = setTimeout(async () => {
