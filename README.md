@@ -1,4 +1,4 @@
-# Step Functions used to process a range of items, each of them processed by a brand-new lambda to renew its timeout
+# Step Functions used to process a range of items, each of them processed by a brand-new lambda to renew its timeout 
 
 
 The state machine receives as input a range of items that should be processed by lambda, for example:
